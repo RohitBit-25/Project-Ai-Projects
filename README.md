@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 🎮 AI 3D PyGame Visualizer with DeepSeek R1
 
 ### 🎓 FREE Step-by-Step Tutorial 
@@ -65,3 +66,6 @@ The project is now modularized for better maintainability:
      - Execution
      - Visualization viewing
 4. **User Interface:** Streamlit provides an intuitive interface for entering queries, viewing code, and managing the visualization process.
+=======
+# Project-Ai-Projects
+>>>>>>> c8c2f124902708ea8781a2ac098ab4f1fa2bad33
