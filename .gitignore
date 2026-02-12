@@ -1,0 +1,20 @@
+
+# Environment Variables
+.env
+
+# Byte-compiled / Optimized / DLL files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Operating System
+.DS_Store
+
+# Streamlit
+.streamlit/secrets.toml
+
+# Virtual Environments
+venv/
+.venv/
+env/

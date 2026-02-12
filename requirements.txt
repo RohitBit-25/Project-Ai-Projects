@@ -1,0 +1,6 @@
+streamlit
+openai
+agno
+langchain_openai
+browser-use
+python-dotenv
