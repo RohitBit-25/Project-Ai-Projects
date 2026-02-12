@@ -6,23 +6,33 @@ from dotenv import load_dotenv
 load_dotenv()
 
 class Config:
-    PAGE_TITLE = "AI 3D Visualizer with DeepSeek R1"
+    PAGE_TITLE = "AI 3D Visualizer with DeepSeek R1 (Groq)"
     PAGE_ICON = "🎮"
     LAYOUT = "wide"
     
     API_KEYS = {
-        "deepseek": os.getenv("DEEPSEEK_API_KEY", ""),
-        "openai": os.getenv("OPENAI_API_KEY", "")
+        "groq": os.getenv("GROQ_API_KEY"),
     }
     
-    EXAMPLE_QUERY = "Create a particle system simulation where 100 particles emit from the mouse position and respond to keyboard-controlled wind forces"
+    MODEL_NAME = "llama-3.3-70b-versatile"
     
-    SYSTEM_PROMPT = """You are a Pygame and Python Expert that specializes in making games and visualisation through pygame and python programming. 
-    During your reasoning and thinking, include clear, concise, and well-formatted Python code in your reasoning. 
-    Always include explanations for the code you provide."""
+    EXAMPLE_QUERY = "Create a 3D simulation of a solar system using PyGame."
     
-    EXTRACTION_PROMPT = """Extract ONLY the Python code from the following content which is reasoning of a particular query to make a pygame script. 
-    Return nothing but the raw code without any explanations, or markdown backticks:
-    {reasoning_content}"""
-
-    TRINKET_URL = "https://trinket.io/features/pygame"
+    SYSTEM_PROMPT = """You are an expert Python developer specializing in PyGame simulations.
+    Your task is to generate clean, executable Python code for 3D simulations or games based on user queries.
+    
+    Rules:
+    1. Use ONLY standard libraries and 'pygame', 'numpy', 'math'.
+    2. Do NOT use external assets (images/sounds) unless generated procedurally.
+    3. The code MUST include a main loop and handle QUIT events.
+    4. Provide strictly the Python code, no markdown explanations outside the code block.
+    5. Ensure the window size is 800x600.
+    """
+    
+    EXTRACTION_PROMPT = """
+    Extract the Python code from the following reasoning or text. 
+    Return ONLY the Python code block without any markdown formatting or explanation.
+    
+    Content:
+    {reasoning_content}
+    """

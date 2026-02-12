@@ -10,7 +10,7 @@ from automation_service import AutomationService
 UIComponents.setup_page()
 
 # 2. Sidebar & API Keys
-deepseek_api_key, openai_api_key = UIComponents.sidebar()
+groq_api_key = UIComponents.sidebar()
 
 # 3. Main Interface
 UIComponents.render_header()
@@ -25,17 +25,17 @@ if "generated_code" not in st.session_state:
 if generate_code_btn:
     if not query:
         st.warning("Please enter a description for your simulation.")
-    elif not deepseek_api_key or not openai_api_key:
-        st.error("Please provide both DeepSeek and OpenAI API keys in the sidebar.")
+    elif not groq_api_key:
+        st.error("Please provide Groq API key in the sidebar.")
     else:
         try:
-            with st.spinner("🤖 DeepSeek is thinking..."):
-                reasoning = LLMService.get_deepseek_reasoning(query, deepseek_api_key)
+            with st.spinner("🤖 DeepSeek (on Groq) is thinking..."):
+                reasoning = LLMService.get_deepseek_reasoning(query, groq_api_key)
                 with st.expander("View DeepSeek's Reasoning"):
                     st.write(reasoning)
             
             with st.spinner("💻 Generating PyGame code..."):
-                code = LLMService.extract_code_with_agno(reasoning, openai_api_key)
+                code = LLMService.extract_code_with_agno(reasoning, groq_api_key)
                 st.session_state.generated_code = code
                 
             st.success("Code generated successfully!")
@@ -51,13 +51,13 @@ if st.session_state.generated_code:
 if generate_vis_btn:
     if not st.session_state.generated_code:
         st.warning("Please generate code first.")
-    elif not openai_api_key:
-        st.error("OpenAI API key is required for visualization automation.")
+    elif not groq_api_key:
+        st.error("Groq API key is required for automation.")
     else:
         with st.spinner("🚀 Launching automation on Trinket.io..."):
             try:
                 # Run the automation asynchronously
-                asyncio.run(AutomationService.run_pygame_on_trinket(st.session_state.generated_code, openai_api_key))
+                asyncio.run(AutomationService.run_pygame_on_trinket(st.session_state.generated_code, groq_api_key))
                 st.success("Automation completed!")
             except Exception as e:
                 st.error(f"Automation failed: {str(e)}")

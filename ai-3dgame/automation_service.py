@@ -6,18 +6,23 @@ from config import Config
 
 class AutomationService:
     @staticmethod
-    async def run_pygame_on_trinket(code: str, openai_api_key: str):
+    async def run_pygame_on_trinket(code: str, api_key: str):
         """
-        Automates the process of running PyGame code on Trinket.io.
+        Automates the process of running PyGame code on Trinket.io using Groq.
         """
-        if not openai_api_key:
-            raise ValueError("OpenAI API Key is missing for automation.")
+        if not api_key:
+            raise ValueError("API Key is missing for automation.")
             
+        # Initialize browser
         browser = Browser()
+        
+        # Correct usage: browser itself acts as a manager, then create context
         async with await browser.new_context() as context:
+            # Use Groq via LangChain's ChatOpenAI wrapper (Groq is OpenAI compatible)
             model = ChatOpenAI(
-                model="gpt-4o", 
-                api_key=openai_api_key
+                base_url="https://api.groq.com/openai/v1",
+                model="llama-3.3-70b-versatile", # Fast and capable model for tool use
+                api_key=api_key
             )
             
             # Define agents for specific tasks
@@ -28,10 +33,9 @@ class AutomationService:
             )
             
             # We combine the "coder" and "executor" tasks to be more robust
-            # The original code had separate agents which is a good pattern, keeping it but refining prompts slightly
             
-            coder = Agent(
-                task='Coder. Your job is to wait for the page to load, then paste the provided code into the code editor. Delete existing code if any. You have 20 seconds.',
+            coder_with_payload = Agent(
+                task=f'Coder. Clear the editor and paste ONLY this code:\n\n{code}\n\nThen stop.',
                 llm=model,
                 browser_context=context
             )
@@ -50,23 +54,6 @@ class AutomationService:
 
             # Execution flow
             await navigator.run()
-            
-            # In a real scenario, we might want to inject the code via execution rather than relying on LLM to "paste" it physically if possible, 
-            # but sticking to the requested "browser-use" agentic pattern:
-            # We need to tell the coder *what* code to write. The original code missed passing the 'code' variable to the prompt explicitly in a robust way for the agent to "know" it.
-            # However, the original prompt just said "wait for the user...". 
-            # I will improve the coder prompt to actually *contain* the code to be pasted, or at least simulate the user action better.
-            # *Self-correction*: The original code relied on the user manually interacting or the agent magically knowing? 
-            # Ah, "wait for the user... to write the code" -> This implies the *user* manually types it? 
-            # No, the goal is automation. 
-            # Let's try to make the agent paste the code.
-            
-            coder_with_payload = Agent(
-                 task=f'Coder. Clear the editor and paste ONLY this code:\n\n{code}\n\nThen stop.',
-                 llm=model,
-                 browser_context=context
-            )
-
             await coder_with_payload.run()
             await executor.run()
             await viewer.run()

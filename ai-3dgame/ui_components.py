@@ -63,29 +63,25 @@ class UIComponents:
         Renders the sidebar for API key configuration.
         """
         with st.sidebar:
-            st.title("API Configuration")
+            st.title("Settings")
             
-            deepseek_key = st.text_input(
-                "DeepSeek API Key",
-                type="password",
-                value=Config.API_KEYS["deepseek"] or ""
-            )
-            openai_key = st.text_input(
-                "OpenAI API Key",
-                type="password",
-                value=Config.API_KEYS["openai"] or ""
-            )
+            # check if keys are present in config
+            groq_status = "✅ Configured" if Config.API_KEYS["groq"] else "❌ Missing"
+            
+            st.markdown(f"**Groq API:** {groq_status}")
+            
+            if "Missing" in groq_status:
+                st.warning("Please set your GROQ_API_KEY")
             
             st.markdown("---")
             st.info("""
             **How to use:**
-            1. Enter your API keys.
-            2. Describe your simulation.
-            3. Generate Code to see the Python script.
-            4. Generate Visualization to run it on Trinket.
+            1. Select a real-world simulation or describe your own.
+            2. Generate Code to see the Python script.
+            3. Generate Visualization to run it on Trinket.
             """)
             
-            return deepseek_key, openai_key
+            return Config.API_KEYS["groq"]
 
     @staticmethod
     def render_header():
@@ -98,11 +94,25 @@ class UIComponents:
     @staticmethod
     def render_query_input():
         """
-        Renders the query input area.
+        Renders the query input area with presets.
         """
+        presets = {
+            "Custom": "",
+            "Solar System": "Create a 3D solar system simulation with the Sun in the center and 8 planets orbiting at different speeds and distances. Use realistic colors for planets. Add a starfield background.",
+            "Bouncing Particles": "Create a particle system where 100 colorful particles emit from the center, bounce off the window edges, and are affected by gravity. Add a trail effect to each particle.",
+            "3D Cube Rotation": "Create a 3D rotating cube using PyGame. The cube should rotate on all three axes (X, Y, Z) controlled by mouse movement. Draw edges in white and faces with semi-transparent colors.",
+            "Rain Simulation": "Create a realistic rain simulation. Raindrops should fall from the top, splash when they hit the bottom, and be affected by a wind force controlled by the left/right arrow keys.",
+            "Conway's Game of Life": "Implement Conway's Game of Life grid. Allow the user to pause/resume with spacebar and clear the grid with 'C'. Allow drawing cells with the mouse.",
+        }
+        
+        selected_preset = st.selectbox("Choose a Real-World Example:", list(presets.keys()))
+        
+        default_value = presets[selected_preset] if selected_preset != "Custom" else ""
+        
         return st.text_area(
             "Describe your simulation:",
-            height=100,
+            height=150,
+            value=default_value,
             placeholder=f"e.g.: {Config.EXAMPLE_QUERY}"
         )
 
