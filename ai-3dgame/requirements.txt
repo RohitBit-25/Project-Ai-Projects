@@ -3,4 +3,5 @@ openai
 agno
 langchain_openai
 browser-use
-python-dotenvgroq
+python-dotenv
+groq

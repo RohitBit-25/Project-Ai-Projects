@@ -36,3 +36,5 @@ class Config:
     Content:
     {reasoning_content}
     """
+    
+    TRINKET_URL = "https://trinket.io/features/pygame"
