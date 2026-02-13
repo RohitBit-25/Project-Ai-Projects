@@ -14,45 +14,77 @@ class UIComponents:
             layout=Config.LAYOUT
         )
         
-        # Custom CSS for a premium look
+        # Custom CSS for a premium, glassmorphism look
         st.markdown("""
         <style>
+        /* Main Background */
         .stApp {
-            background-color: #0e1117;
+            background: radial-gradient(circle at 10% 20%, rgb(0, 0, 0) 0%, rgb(30, 30, 30) 90.2%);
             color: #ffffff;
+            font-family: 'Inter', sans-serif;
         }
-        .stButton>button {
-            width: 100%;
-            border-radius: 8px;
-            background-color: #ff4b4b;
-            color: white;
-            font-weight: 600;
-            border: none;
-            padding: 0.5rem 1rem;
-            transition: all 0.3s ease;
+
+        /* Sidebar Styling */
+        section[data-testid="stSidebar"] {
+            background-color: rgba(20, 20, 20, 0.95);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
         }
-        .stButton>button:hover {
-            background-color: #ff3333;
-            box-shadow: 0 4px 12px rgba(255, 75, 75, 0.3);
-            transform: translateY(-2px);
+
+        /* Glassmorphism Containers */
+        .stTextArea, .stTextInput, .stSelectbox {
+             background: rgba(255, 255, 255, 0.05);
+             backdrop-filter: blur(10px);
+             border-radius: 12px;
+             border: 1px solid rgba(255, 255, 255, 0.1);
+             padding: 10px;
         }
+
+        /* Typography */
         h1 {
-            background: linear-gradient(45deg, #ff4b4b, #ff904b);
+            background: linear-gradient(90deg, #FF9933, #FFFFFF, #138808); /* Tiranga Gradient */
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             font-weight: 800;
+            font-size: 3rem !important;
+            text-shadow: 0 0 20px rgba(255, 153, 51, 0.3);
         }
-        .stTextInput>div>div>input {
-            border-radius: 8px;
-            border: 1px solid #2d2d2d;
-            background-color: #1e1e1e;
-            color: white;
+        h3 {
+            color: #ccc;
+            font-weight: 300;
         }
-        .stTextArea>div>div>textarea {
-            border-radius: 8px;
-            border: 1px solid #2d2d2d;
-            background-color: #1e1e1e;
+
+        /* Buttons */
+        .stButton>button {
+            width: 100%;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
             color: white;
+            font-weight: 600;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .stButton>button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(37, 117, 252, 0.4);
+        }
+
+        /* Input Fields */
+        .stTextInput>div>div>input, .stTextArea>div>div>textarea {
+            color: white;
+            background-color: transparent;
+        }
+        
+        /* Custom Classes */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
         }
         </style>
         """, unsafe_allow_html=True)
@@ -63,33 +95,41 @@ class UIComponents:
         Renders the sidebar for API key configuration.
         """
         with st.sidebar:
-            st.title("Settings")
+            st.image("https://media.giphy.com/media/l41lFj8afad4T1pDy/giphy.gif", use_container_width=True) # Tech vibe GIF
+            st.title("⚙️ Control Center")
             
+            st.markdown("### 🔑 API Config")
             # check if keys are present in config
-            groq_status = "✅ Configured" if Config.API_KEYS["groq"] else "❌ Missing"
+            groq_key = Config.API_KEYS["groq"]
             
-            st.markdown(f"**Groq API:** {groq_status}")
-            
-            if "Missing" in groq_status:
-                st.warning("Please set your GROQ_API_KEY")
+            if not groq_key:
+                st.warning("⚠️ Groq API Key Missing!")
+                groq_key = st.text_input("Enter Groq API Key", type="password")
+            else:
+                st.success("✅ Groq Connected")
             
             st.markdown("---")
-            st.info("""
-            **How to use:**
-            1. Select a real-world simulation or describe your own.
-            2. Generate Code to see the Python script.
-            3. Generate Visualization to run it on Trinket.
+            st.markdown("""
+            ### 📜 How it works
+            1. **Select** a preset or **Describe** your idea.
+            2. **Generate Code** (powered by DeepSeek R1).
+            3. **Visualize** (automated on Trinket.io).
             """)
             
-            return Config.API_KEYS["groq"]
+            st.markdown("---")
+            st.caption("Made with ❤️ in India by **RohitBit-25**")
+            
+            return groq_key
 
     @staticmethod
     def render_header():
         """
         Renders the main header.
         """
+        st.markdown('<div class="glass-card">', unsafe_allow_html=True)
         st.title(Config.PAGE_TITLE)
-        st.markdown("### Create interactive 3D simulations with AI")
+        st.markdown("### 🚀 Build 3D Games & Simulations with **DeepSeek R1**")
+        st.markdown('</div>', unsafe_allow_html=True)
 
     @staticmethod
     def render_query_input():
@@ -98,30 +138,44 @@ class UIComponents:
         """
         presets = {
             "Custom": "",
-            "Solar System": "Create a 3D solar system simulation with the Sun in the center and 8 planets orbiting at different speeds and distances. Use realistic colors for planets. Add a starfield background.",
-            "Bouncing Particles": "Create a particle system where 100 colorful particles emit from the center, bounce off the window edges, and are affected by gravity. Add a trail effect to each particle.",
-            "3D Cube Rotation": "Create a 3D rotating cube using PyGame. The cube should rotate on all three axes (X, Y, Z) controlled by mouse movement. Draw edges in white and faces with semi-transparent colors.",
-            "Rain Simulation": "Create a realistic rain simulation. Raindrops should fall from the top, splash when they hit the bottom, and be affected by a wind force controlled by the left/right arrow keys.",
-            "Conway's Game of Life": "Implement Conway's Game of Life grid. Allow the user to pause/resume with spacebar and clear the grid with 'C'. Allow drawing cells with the mouse.",
+            "🇮🇳 Indian Flag Weaving": "Create a 3D simulation of a waving Indian Flag using particle systems or mesh grid.",
+            "🌌 Spiral Galaxy": "Create a 3D galaxy simulation with thousands of stars rotating in a spiral arm pattern, with a supermassive black hole in the center.",
+            "🏎️ Cyberpunk Car Drift": "Create a low-poly cyberpunk car drifting on a neon grid road. Add retro-wave aesthetic colors.",
+            "⚽ Bouncing Football": "Create a realistic physics simulation of a football bouncing on a grass field with gravity and elasticity coefficient.",
+            "♟️ 3D Chess Board": "Draw a 3D Chess board with black and white squares. Allow rotation of the board using arrow keys.",
         }
         
-        selected_preset = st.selectbox("Choose a Real-World Example:", list(presets.keys()))
+        col1, col2 = st.columns([1, 2])
         
-        default_value = presets[selected_preset] if selected_preset != "Custom" else ""
+        with col1:
+            st.markdown("#### 🎯 Quick Start")
+            selected_preset = st.selectbox("Select a Template:", list(presets.keys()))
         
-        return st.text_area(
-            "Describe your simulation:",
-            height=150,
-            value=default_value,
-            placeholder=f"e.g.: {Config.EXAMPLE_QUERY}"
-        )
+        with col2:
+            st.markdown("#### ✍️ Your Vision")
+            default_value = presets[selected_preset] if selected_preset != "Custom" else ""
+            query = st.text_area(
+                "Describe your dream simulation:",
+                height=150,
+                value=default_value,
+                placeholder=f"e.g.: {Config.EXAMPLE_QUERY}"
+            )
+        
+        return query
 
     @staticmethod
     def render_action_buttons():
         """
         Renders the action buttons.
         """
-        col1, col2 = st.columns(2)
-        generate_code = col1.button("✨ Generate Code")
-        generate_vis = col2.button("🚀 Generate Visualization")
+        st.markdown("---")
+        col1, col2, col3 = st.columns([1, 1, 1])
+        with col1:
+            generate_code = st.button("✨ Generate Logic (Code)")
+        with col2:
+            generate_vis = st.button("🔴 LIVE Visualization")
+        with col3:
+             if st.button("🔄 Reset"):
+                 st.rerun()
+                 
         return generate_code, generate_vis

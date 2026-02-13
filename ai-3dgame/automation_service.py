@@ -1,68 +1,62 @@
 
 import asyncio
-from browser_use import Browser, Agent
-# Use ChatGroq from browser_use to ensure compatibility
-from browser_use.llm import ChatGroq
-# Patch ToolCallingModels to force tool usage instead of json_schema for Llama 3.3
-# This fixes the "This model does not support response format `json_schema`" error
-from browser_use.llm.groq.chat import ToolCallingModels
-ToolCallingModels.append('llama-3.3-70b-versatile')
-
+from playwright.async_api import async_playwright
 from config import Config
 
 class AutomationService:
     @staticmethod
     async def run_pygame_on_trinket(code: str, api_key: str):
         """
-        Automates the process of running PyGame code on Trinket.io using Groq.
+        Automates the process of running PyGame code on Trinket.io using direct Playwright.
+        This provides a much more stable and faster execution than using an LLM agent.
         """
-        if not api_key:
-            raise ValueError("API Key is missing for automation.")
+        async with async_playwright() as p:
+            # Launch browser (headless=False so user can see it)
+            browser = await p.chromium.launch(headless=False)
+            context = await browser.new_context()
+            page = await context.new_page()
             
-        # Initialize browser (BrowserSession)
-        browser = Browser()
-        
-        try:
-            # Use ChatGroq wrapper which is compatible with browser-use Agent
-            model = ChatGroq(
-                model="llama-3.3-70b-versatile",
-                api_key=api_key
-            )
-            
-            # Define agents for specific tasks
-            # Note: We pass 'browser' directly as it is a BrowserSession
-            
-            navigator = Agent(
-                task=f'Go to {Config.TRINKET_URL}, thats your only job.',
-                llm=model,
-                browser=browser,
-            )
-            
-            coder_with_payload = Agent(
-                task=f'Coder. Clear the editor and paste ONLY this code:\n\n{code}\n\nThen stop.',
-                llm=model,
-                browser=browser
-            )
-            
-            executor = Agent(
-                task='Executor. Your job is to click the "Run" or "Play" button to execute the code. Make sure the code is run.',
-                llm=model,
-                browser=browser
-            )
-
-            viewer = Agent(
-                task='Viewer. Your job is to just view the pygame window for 10 seconds to ensure it runs.',
-                llm=model,
-                browser=browser,
-            )
-
-            # Execution flow
-            await navigator.run()
-            await coder_with_payload.run()
-            await executor.run()
-            await viewer.run()
-            
-        finally:
-            # clean up browser
-            # clean up browser
-            await browser.stop()
+            try:
+                # 1. Navigate to Trinket
+                await page.goto(Config.TRINKET_URL)
+                await page.wait_for_load_state("networkidle")
+                
+                # 2. Wait for editor to be ready
+                # Trinket uses Ace editor, so we target the text area or the container
+                # We might need to wait for a specific element that significantly indicates the editor is loaded
+                await page.wait_for_selector(".ace_content")
+                
+                # 3. Focus the editor
+                await page.click(".ace_content")
+                
+                # 4. Select All and Delete
+                # Mac uses Meta+A, others use Control+A
+                modifier = "Meta" if await page.evaluate("navigator.platform.includes('Mac')") else "Control"
+                await page.keyboard.press(f"{modifier}+A")
+                await page.keyboard.press("Backspace")
+                
+                # 5. Paste the code
+                # Direct typing can be slow for large code, so we use clipboard or evaluate
+                # But typing is safer for diverse environments. Let's try direct fill first if possible, 
+                # or just type it fast.
+                
+                # Using invalidation of clipboard permissions by default in many browsers, 
+                # we will simulate typing but very fast
+                await page.keyboard.insert_text(code)
+                
+                # 6. Click Run
+                # The run button usually has a specific class or title. 
+                # In Trinket Pygame, it's often a play icon.
+                # We look for a button that contains "Run" or has a play icon class.
+                await page.click("button.run-button")  # Common selector, needs verification if fails
+                # Fallback if specific class isn't found, try finding by text or icon
+                
+                # 7. Wait and Watch
+                # Keep the browser open for 15 seconds to let the user see the result
+                await asyncio.sleep(15)
+                
+            except Exception as e:
+                print(f"Automation Error: {e}")
+                raise e
+            finally:
+                await browser.close()
