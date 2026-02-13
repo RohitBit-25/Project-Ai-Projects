@@ -3,6 +3,11 @@ import asyncio
 from browser_use import Browser, Agent
 # Use ChatGroq from browser_use to ensure compatibility
 from browser_use.llm import ChatGroq
+# Patch ToolCallingModels to force tool usage instead of json_schema for Llama 3.3
+# This fixes the "This model does not support response format `json_schema`" error
+from browser_use.llm.groq.chat import ToolCallingModels
+ToolCallingModels.append('llama-3.3-70b-versatile')
+
 from config import Config
 
 class AutomationService:
