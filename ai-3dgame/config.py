@@ -38,3 +38,11 @@ class Config:
     """
     
     TRINKET_URL = "https://trinket.io/features/pygame"
+
+    LOTTIE_URLS = {
+        "thinking": "https://assets10.lottiefiles.com/packages/lf20_wbrwdn5r.json", # Neural network / tech thinking
+        "coding": "https://assets9.lottiefiles.com/packages/lf20_M9p23l.json",     # Coding on laptop
+        "running": "https://assets8.lottiefiles.com/packages/lf20_m64r7m.json",    # Rocket launch / execution
+        "success": "https://assets1.lottiefiles.com/packages/lf20_pqnfmngr.json",   # Success check
+        "error": "https://assets10.lottiefiles.com/packages/lf20_Q2cO7b.json"      # Error bot
+    }

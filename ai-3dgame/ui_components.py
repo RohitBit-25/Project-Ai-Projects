@@ -1,8 +1,23 @@
-
 import streamlit as st
+import requests
+from streamlit_lottie import st_lottie
 from config import Config
 
 class UIComponents:
+    @staticmethod
+    def load_lottieurl(url: str):
+        r = requests.get(url)
+        if r.status_code != 200:
+            return None
+        return r.json()
+
+    @staticmethod
+    def render_status_animation(key: str, height: int = 200):
+        url = Config.LOTTIE_URLS.get(key)
+        if url:
+            lottie_json = UIComponents.load_lottieurl(url)
+            if lottie_json:
+                st_lottie(lottie_json, height=height, key=f"lottie_{key}")
     @staticmethod
     def setup_page():
         """
@@ -14,77 +29,93 @@ class UIComponents:
             layout=Config.LAYOUT
         )
         
-        # Custom CSS for a premium, glassmorphism look
+        # Custom CSS for Cyberpunk / Neon Theme
         st.markdown("""
         <style>
-        /* Main Background */
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@300;500;700&display=swap');
+
+        /* Main Background - Cyberpunk Void */
         .stApp {
-            background: radial-gradient(circle at 10% 20%, rgb(0, 0, 0) 0%, rgb(30, 30, 30) 90.2%);
-            color: #ffffff;
-            font-family: 'Inter', sans-serif;
+            background-color: #050505;
+            background-image: 
+                linear-gradient(rgba(0, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 30px 30px;
+            color: #d1d5db;
+            font-family: 'Rajdhani', sans-serif;
         }
 
-        /* Sidebar Styling */
+        /* Sidebar - Tech Panel */
         section[data-testid="stSidebar"] {
-            background-color: rgba(20, 20, 20, 0.95);
-            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            background-color: #0a0a0a;
+            border-right: 1px solid #333;
         }
 
-        /* Glassmorphism Containers */
+        /* Input Fields - Neon Glass */
         .stTextArea, .stTextInput, .stSelectbox {
-             background: rgba(255, 255, 255, 0.05);
-             backdrop-filter: blur(10px);
-             border-radius: 12px;
-             border: 1px solid rgba(255, 255, 255, 0.1);
-             padding: 10px;
+             background: rgba(10, 10, 10, 0.8);
+             border-radius: 4px;
+             border: 1px solid #333;
+             color: #00ffcc;
+             font-family: 'Orbitron', sans-serif;
+        }
+        .stTextArea:focus-within, .stTextInput:focus-within {
+            border-color: #00ffcc;
+            box-shadow: 0 0 10px rgba(0, 255, 204, 0.2);
         }
 
         /* Typography */
+        h1, h2, h3 {
+            font-family: 'Orbitron', sans-serif !important;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
         h1 {
-            background: linear-gradient(90deg, #FF9933, #FFFFFF, #138808); /* Tiranga Gradient */
+            background: linear-gradient(90deg, #00f2ff, #00ff9d);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            font-weight: 800;
-            font-size: 3rem !important;
-            text-shadow: 0 0 20px rgba(255, 153, 51, 0.3);
-        }
-        h3 {
-            color: #ccc;
-            font-weight: 300;
+            text-shadow: 0 0 20px rgba(0, 242, 255, 0.5);
+            font-weight: 900;
         }
 
-        /* Buttons */
+        /* Buttons - Holographic */
         .stButton>button {
             width: 100%;
-            border-radius: 12px;
-            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-            color: white;
+            border-radius: 0px;
+            background: transparent;
+            color: #00ffcc;
+            border: 1px solid #00ffcc;
+            font-family: 'Orbitron', sans-serif;
             font-weight: 600;
-            border: none;
             padding: 0.75rem 1.5rem;
             transition: all 0.3s ease;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
         }
         .stButton>button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(37, 117, 252, 0.4);
+            background: rgba(0, 255, 204, 0.1);
+            box-shadow: 0 0 15px rgba(0, 255, 204, 0.4);
+            transform: translateY(-2px);
+            text-shadow: 0 0 8px #00ffcc;
         }
 
-        /* Input Fields */
-        .stTextInput>div>div>input, .stTextArea>div>div>textarea {
-            color: white;
-            background-color: transparent;
+        /* Custom Classes */
+        .neon-card {
+            background: rgba(15, 15, 20, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(0, 255, 204, 0.1);
+            border-left: 2px solid #00ffcc;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
         }
         
-        /* Custom Classes */
-        .glass-card {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border-radius: 16px;
-            padding: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            margin-bottom: 20px;
+        .status-box {
+            border: 1px solid #ff00ff;
+            background: rgba(255, 0, 255, 0.05);
+            padding: 10px;
+            border-radius: 4px;
         }
         </style>
         """, unsafe_allow_html=True)
@@ -126,7 +157,7 @@ class UIComponents:
         """
         Renders the main header.
         """
-        st.markdown('<div class="glass-card">', unsafe_allow_html=True)
+        st.markdown('<div class="neon-card">', unsafe_allow_html=True)
         st.title(Config.PAGE_TITLE)
         st.markdown("### 🚀 Build 3D Games & Simulations with **DeepSeek R1**")
         st.markdown('</div>', unsafe_allow_html=True)
