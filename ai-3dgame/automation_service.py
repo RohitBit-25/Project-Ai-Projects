@@ -21,37 +21,42 @@ class AutomationService:
                 await page.goto(Config.TRINKET_URL)
                 await page.wait_for_load_state("networkidle")
                 
-                # 2. Wait for editor to be ready
-                # Trinket uses Ace editor, so we target the text area or the container
-                # We might need to wait for a specific element that significantly indicates the editor is loaded
-                await page.wait_for_selector(".ace_content")
+                # 2. Locate the iframe containing the editor
+                # Trinket embeds the editor in an iframe
+                # We wait for the iframe to be attached
+                iframe_element = await page.wait_for_selector("iframe[src*='trinket.io/embed']", state="attached")
+                iframe = await iframe_element.content_frame()
                 
-                # 3. Focus the editor
-                await page.click(".ace_content")
+                if not iframe:
+                    raise Exception("Could not find the Trinket editor iframe")
+
+                # 3. Wait for editor inside iframe
+                await iframe.wait_for_selector(".ace_content")
                 
-                # 4. Select All and Delete
-                # Mac uses Meta+A, others use Control+A
+                # 4. Focus the editor (click inside textarea or editor div)
+                await iframe.click(".ace_content")
+                
+                # 5. Select All and Delete
                 modifier = "Meta" if await page.evaluate("navigator.platform.includes('Mac')") else "Control"
                 await page.keyboard.press(f"{modifier}+A")
                 await page.keyboard.press("Backspace")
                 
-                # 5. Paste the code
-                # Direct typing can be slow for large code, so we use clipboard or evaluate
-                # But typing is safer for diverse environments. Let's try direct fill first if possible, 
-                # or just type it fast.
-                
-                # Using invalidation of clipboard permissions by default in many browsers, 
-                # we will simulate typing but very fast
+                # 6. Paste the code
+                # We use the clipboard method which is faster and cleaner for large code blocks
+                # or just type it if clipboard is restricted. 
+                # typing is safer.
                 await page.keyboard.insert_text(code)
                 
-                # 6. Click Run
-                # The run button usually has a specific class or title. 
-                # In Trinket Pygame, it's often a play icon.
-                # We look for a button that contains "Run" or has a play icon class.
-                await page.click("button.run-button")  # Common selector, needs verification if fails
-                # Fallback if specific class isn't found, try finding by text or icon
-                
-                # 7. Wait and Watch
+                # 7. Click Run
+                # The run button is also inside the iframe usually for the embed view
+                # It has a class 'run-button' or ID 'run-button'
+                try:
+                    await iframe.click(".run-button", timeout=3000)
+                except:
+                    # Fallback: try finding a button with play icon class
+                    await iframe.click("img[src*='play']") # speculative fallback, main one should work
+
+                # 8. Wait and Watch
                 # Keep the browser open for 15 seconds to let the user see the result
                 await asyncio.sleep(15)
                 
