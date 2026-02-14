@@ -2,6 +2,8 @@
 # Environment Variables
 .env
 
+.kluster/
+
 # Byte-compiled / Optimized / DLL files
 __pycache__/
 *.pyc

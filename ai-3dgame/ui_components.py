@@ -128,7 +128,7 @@ class UIComponents:
         Renders the sidebar for API key configuration.
         """
         with st.sidebar:
-            st.image("https://media.giphy.com/media/l41lFj8afad4T1pDy/giphy.gif", width=300) # Tech vibe GIF
+            st.image("http://www.graphicmania.net/wp-content/uploads/2013/07/animated-gifs01.gif", width=300) # Tech vibe GIF
             st.title("⚙️ Control Center")
             
             st.markdown("### 🔑 API Config")
@@ -150,7 +150,7 @@ class UIComponents:
             """)
             
             st.markdown("---")
-            st.caption("Made with ❤️ in India by **RohitBit-25**")
+            st.caption("Made with ❤️ in India")
             
             return groq_key
 
