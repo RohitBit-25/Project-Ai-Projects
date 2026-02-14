@@ -126,7 +126,7 @@ class UIComponents:
         Renders the sidebar for API key configuration.
         """
         with st.sidebar:
-            st.image("https://media.giphy.com/media/l41lFj8afad4T1pDy/giphy.gif", use_container_width=True) # Tech vibe GIF
+            st.image("https://media.giphy.com/media/l41lFj8afad4T1pDy/giphy.gif", width=300) # Tech vibe GIF
             st.title("⚙️ Control Center")
             
             st.markdown("### 🔑 API Config")

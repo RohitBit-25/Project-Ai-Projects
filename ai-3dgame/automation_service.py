@@ -22,10 +22,21 @@ class AutomationService:
                 await page.wait_for_load_state("networkidle")
                 
                 # 2. Locate the iframe containing the editor
-                # Trinket embeds the editor in an iframe
+                # Trinket embeds the editor in an iframe named 'code_iframe'
                 # We wait for the iframe to be attached
-                iframe_element = await page.wait_for_selector("iframe[src*='trinket.io/embed']", state="attached")
-                iframe = await iframe_element.content_frame()
+                # Instead of selecting the element, we look for the frame directly
+                # Wait a bit for frames to load
+                await page.wait_for_timeout(5000)
+                
+                iframe = None
+                for frame in page.frames:
+                    if "trinket.io/embed" in frame.url:
+                        iframe = frame
+                        break
+                
+                if not iframe:
+                    # Fallback to name if URL doesn't match
+                    iframe = page.frame(name="code_iframe")
                 
                 if not iframe:
                     raise Exception("Could not find the Trinket editor iframe")
