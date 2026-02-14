@@ -18,31 +18,44 @@ class Config:
     
     EXAMPLE_QUERY = "Create a 3D simulation of a solar system using PyGame."
     
-    SYSTEM_PROMPT = """You are an expert Python developer specializing in PyGame simulations.
-    Your task is to generate clean, executable Python code for 3D simulations or games based on user queries.
-    
-    Rules:
-    1. Use ONLY standard libraries and 'pygame', 'numpy', 'math'.
-    2. Do NOT use external assets (images/sounds) unless generated procedurally.
-    3. The code MUST include a main loop and handle QUIT events.
-    4. Provide strictly the Python code, no markdown explanations outside the code block.
-    5. Ensure the window size is 800x600.
+    SYSTEM_PROMPT = """You are an elite Python developer specializing in high-performance PyGame simulations and 3D graphics.
+    Your goal is to create visually stunning, interactive, and robust 3D simulations or games based on user queries.
+
+    ### 🎨 Design & Aesthetics
+    -   **Visuals**: Use vibrant colors, gradients, or neon aesthetics where appropriate. Avoid plain black/white defaults unless requested.
+    -   **3D Illusion**: Since PyGame is 2D, use perspective projection math (x_proj = x * fov / (z + viewer_distance)) to create convincing 3D effects.
+    -   **Smooth Animation**: Ensure strictly stable 60 FPS using `clock.tick(60)`. Use smooth variable updates.
+
+    ### 🎮 Interactivity
+    -   **Controls**: ALWAYS implement mouse or keyboard controls (e.g., arrow keys to rotate/move, mouse to interact).
+    -   **Feedback**: responding to user inputs immediately visibly (e.g., color change on hover, rotation speedup).
+
+    ### 🛠️ Technical Constraints
+    1.  **Libraries**: Use ONLY `pygame`, `numpy`, `math`, `random`. NO external asset loading (images/sounds) unless generated procedurally (e.g., drawing shapes, surfaces).
+    2.  **Structure**: logic MUST be encapsulated in a class (e.g., `class Simulation:`) with `__init__`, `update`, and `draw` methods.
+    3.  **Robustness**: Handle edge cases (e.g., div by zero). The code MUST run indefinitely until closed.
+    4.  **Window**: Initialize with `pygame.display.set_mode((800, 600))` or suitable resolution.
+    5.  **Clean Code**: Write professional, commented, and typed Python code.
+
+    ### 🚫 Restrictions
+    -   NO `pygame.image.load()` (will fail on web runner). Use `pygame.draw` math for visuals.
+    -   NO infinite loops without event handling.
     """
     
     EXTRACTION_PROMPT = """
-    Extract the Python code from the following reasoning or text. 
-    Return ONLY the Python code block without any markdown formatting or explanation.
-    
-    Content:
-    {reasoning_content}
+    Extract the Python code from the given reasoning.
+    Return ONLY the Python code block (inside ```python ... ```).
+    Ensure the code is complete and self-contained.
     """
     
     TRINKET_URL = "https://trinket.io/features/pygame"
 
-    LOTTIE_URLS = {
-        "thinking": "https://assets10.lottiefiles.com/packages/lf20_wbrwdn5r.json", # Neural network / tech thinking
-        "coding": "https://assets9.lottiefiles.com/packages/lf20_M9p23l.json",     # Coding on laptop
-        "running": "https://assets8.lottiefiles.com/packages/lf20_m64r7m.json",    # Rocket launch / execution
-        "success": "https://assets1.lottiefiles.com/packages/lf20_pqnfmngr.json",   # Success check
-        "error": "https://assets10.lottiefiles.com/packages/lf20_Q2cO7b.json"      # Error bot
+    # Use local assets for reliability
+    
+    LOTTIE_ASSETS = {
+        "thinking": "assets/thinking.json",
+        "coding": "assets/coding.json",
+        "running": "assets/running.json",
+        "success": "assets/success.json",
+        "error": "assets/error.json"
     }

@@ -1,21 +1,23 @@
 import streamlit as st
 import requests
+import json
 from streamlit_lottie import st_lottie
 from config import Config
 
 class UIComponents:
     @staticmethod
-    def load_lottieurl(url: str):
-        r = requests.get(url)
-        if r.status_code != 200:
+    def load_lottiefile(filepath: str):
+        try:
+            with open(filepath, "r") as f:
+                return json.load(f)
+        except Exception:
             return None
-        return r.json()
 
     @staticmethod
     def render_status_animation(key: str, height: int = 200):
-        url = Config.LOTTIE_URLS.get(key)
-        if url:
-            lottie_json = UIComponents.load_lottieurl(url)
+        filepath = Config.LOTTIE_ASSETS.get(key)
+        if filepath:
+            lottie_json = UIComponents.load_lottiefile(filepath)
             if lottie_json:
                 st_lottie(lottie_json, height=height, key=f"lottie_{key}")
     @staticmethod
